@@ -9,6 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 20px;
 }
 
 .cards {
@@ -32,5 +33,6 @@ img {
   max-height: 100%;
   object-fit: cover;
 }
+
 
 

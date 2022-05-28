@@ -1,62 +1,55 @@
 import './App.css';
 import Card from './components/Card';
-import React, {useState} from 'react';
-import Hinata from './images/Hinata.jpeg';
-import Sasuke from './images/Sasuke.webp';
-import Naruto from './images/Naruto.jpeg';
-import Sakura from './images/Sakura.webp';
-import Itachi from './images/Itachi.webp';
-import Madara from './images/Madara.webp';
-import Gaara from './images/Gaara.jpeg';
+import React, {useEffect, useState} from 'react';
+import randomCharacters from './helpers/characters';
 
 function App() {
-  const [names, setNames] = useState([['Naruto', Naruto], ['Sasuke', Sasuke], ['Hinata', Hinata], ['Sakura', Sakura], ['Itachi', Itachi], ['Madara', Madara], ['Gaara', Gaara]]) 
-  const [score, setScore] = useState(0)
+  const [score, setScore] = useState(0);
+  const [guessed, setGuessed] = useState([]);
+  const [best, setBest] = useState(0)
 
-  function repositionCards () {
-    let newCards = [...shuffle(names)]
-    setNames(newCards)
+  function resetGame () {
+    setGuessed([]);
+    setScore(0);
   }
 
-  function increaseScore () {
+  function handleClick (character) {
+    if (guessed.includes(character)) {
+      resetGame()
+      return;
+    }
+    setGuessed(guessed.concat(character));
     setScore(score + 1);
-    console.log(`score increased to ${score}`);
+    if (score >= best) setBest(best + 1);
   }
 
-  function youLose () {
-    setScore(0)
-  }
+  useEffect(() => {
+    const storedBest = parseInt(localStorage.getItem('Best'));
+    if (storedBest) setBest(storedBest);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('Best', best)
+  }, [best])
+
+  useEffect(() => {
+    if (score === 7) {
+      resetGame();
+      alert('You won! Thank you for playing!')
+    }
+  }, [score])
 
   return (
     <div className='container'>
       <div className='scoreboard'>
         <h2>Score: {score}</h2>
+        <h2>Best: {best}</h2>
       </div>
       <div className='cards'>
-        {names.map((el, i) => {
-          return <Card number={i} title={el[0]} imgUrl={el[1]} reposition={repositionCards} increaseScore={increaseScore} youLose={youLose}/>
-        })}
+        {randomCharacters().map((character) => <Card key={character.id} character={character} handleClick={handleClick}/>)}
       </div>
     </div>
   );
-}
-
-function shuffle(array) {
-  let currentIndex = array.length, randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-
-  return array;
 }
 
 export default App;
